@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maguna Minimarket Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="left-section">
+            <div class="overlay-text">
+                <h1>MAGUNA MINIMARKET</h1>
+            </div>
+        </div>
+        <div class="right-section">
+            <form class="login-form" id="login-form">
+                <h1>Log In</h1><br>
+                <div class="input-container">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" placeholder="Enter your username" required>
+                </div><br>
+                <div class="input-container">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                </div><br>
+                <button type="submit">LOG IN</button></a><br>
+                <a href="#" id="forgot-password">Forgot Password?</a><br>
+                <br><p>Don't have an account? <a href="index.html">Sign up</a></p>
+            </form>
+        </div>
+    </div>
+    <script>
+document.getElementById('login-form').addEventListener('submit', async function (event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    // Get user inputs
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    if (username && password) {
+        try {
+            // Send login details to the server
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                // Store the username in localStorage
+                localStorage.setItem('username', result.username);
+
+                alert(result.message); // Show success message
+                window.location.href = "dashboard.html"; // Redirect to dashboard
+            } else {
+                alert(result.message); // Show error message
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again later.');
+        }
+    } else {
+        alert('Please enter both username and password');
+    }
+});
+
+document.getElementById('forgot-password').addEventListener('click', () => {
+    // Prompt the user to enter their email
+    const email = prompt('Please enter your email to reset your password:');
+
+    if (email) {
+        // Simulated list of saved emails
+        const savedEmails = ['user1@example.com', 'user2@example.com', 'user3@example.com'];
+
+        // Check if the email exists
+        if (savedEmails.includes(email)) {
+            alert('A reset code has been sent to your email.');
+        } else {
+            alert('Email not found. Please try again.');
+        }
+    }
+});
+
+</script>
+
+    
+</body>
+</html>

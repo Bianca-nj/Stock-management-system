@@ -1,0 +1,148 @@
+<style>
+  body{
+    font-family: Arial, sans-serif;
+  background-image: url(img.jpg);
+  background-repeat: no-repeat; 
+  background-size: cover; 
+  background-position: center; 
+  margin: 0;
+  padding: 0;
+  }
+  
+.reports-section {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 1000px;
+  margin: 30px auto;
+}
+
+.reports-section h1 {
+  text-align: center;
+  color: #FF7043;
+  font-size: 2.5em;
+  margin-bottom: 20px;
+}
+
+/* Reports Table */
+#reportTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+#reportTable th, #reportTable td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+#reportTable th {
+  background-color: #f4f4f4;
+  color: #333;
+  font-weight: bold;
+}
+
+#reportTable td {
+  background-color: #f9f9f9;
+  color: #555;
+}
+
+#reportTable tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+#reportTable tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Download Report Button */
+.download-report {
+  padding: 12px 25px;
+  background-color: #FF7043;
+  color: white;
+  font-size: 1.2em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto;
+  transition: background-color 0.3s ease;
+}
+
+.download-report:hover {
+  background-color: #e65c41;
+}
+
+.download-report:focus {
+  outline: none;
+}
+</style>
+
+<div class="reports-section">
+  <h1>Reports</h1>
+  <section id="reports" class="dashboard-section">
+      <h2>Reports</h2>
+      <table id="reportTable">
+          <thead>
+              <tr>
+                  <th>Product</th>
+                  <th>Quantity Sold</th>
+                  <th>Total Sales ($)</th>
+                  <th>Total Products</th>
+              </tr>
+          </thead>
+          <tbody>
+              <!-- Sales and Stock Data will be dynamically populated here -->
+          </tbody>
+      </table><br>
+      
+<br><a href="dashboard.html" class="button-link">Home Page</a>
+  </section>
+  
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+      // Fetch the generated report from the backend
+      fetch('http://localhost:3002/generate-report')
+          .then(response => response.json())
+          .then(data => {
+              if (data.report_data && data.report_data.length > 0) {
+                  const reportTable = document.getElementById('reportTable').getElementsByTagName('tbody')[0];
+  
+                  // Loop through the report data and add rows to the table
+                  data.report_data.forEach(product => {
+                      const row = reportTable.insertRow();
+  
+                      row.innerHTML = `
+                          <td>${product.product_name}</td>
+                          <td>${product.quantity_sold}</td>
+                          <td>$${product.total_sale.toFixed(2)}</td>
+                          <td>${product.total_products}</td>
+                      `;
+                  });
+              } else {
+                  // If no report data, show a message
+                  const reportTable = document.getElementById('reportTable').getElementsByTagName('tbody')[0];
+                  const row = reportTable.insertRow();
+                  row.innerHTML = `<td colspan="4">No data available</td>`;
+              }
+          })
+          .catch(error => {
+              console.error('Error fetching report data:', error);
+  
+              // Handle error gracefully and show a message in the table
+              const reportTable = document.getElementById('reportTable').getElementsByTagName('tbody')[0];
+              const row = reportTable.insertRow();
+              row.innerHTML = `<td colspan="4">Error fetching data. Please try again later.</td>`;
+          });
+
+      // Handle the download button click
+      document.querySelector('.download-report').addEventListener('click', function() {
+          // Trigger a download of the report as CSV
+          window.location.href = 'http://localhost:3002/download-report';
+      });
+  });
+  </script>
+  <button class="download-report">Download Report</button>
+</div>

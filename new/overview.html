@@ -1,0 +1,38 @@
+<section id="overview" class="dashboard-section">
+    <h4>Overview</h4>
+    <div class="info-boxes">
+        <div class="info-box">
+            <h3>Total Products</h3>
+            <p id="total-products">Loading...</p>
+        </div>
+        <div class="info-box">
+            <h3>Low Stock</h3>
+            <p id="low-stock-products">Loading...</p>
+        </div>
+        <div class="info-box">
+            <h3>Sales Today</h3>
+            <p id="sales-today">Loading...</p>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Fetch overview data from the backend API
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('http://localhost:3000/overview')
+            .then(response => response.json())
+            .then(data => {
+                // Update the content with fetched data
+                document.getElementById('total-products').textContent = data.total_products;
+                document.getElementById('low-stock-products').textContent = data.low_stock;
+                document.getElementById('sales-today').textContent = '$' + data.sales_today.toFixed(2); // Format sales
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                // Fallback values if there's an error
+                document.getElementById('total-products').textContent = 'Error';
+                document.getElementById('low-stock-products').textContent = 'Error';
+                document.getElementById('sales-today').textContent = 'Error';
+            });
+    });
+</script>

@@ -1,0 +1,206 @@
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-image: url(img.jpg);
+  background-repeat: no-repeat; 
+  background-size: cover; 
+  background-position: center; 
+  margin: 0;
+  padding: 0;
+}
+
+/* Sales Section */
+#sales {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  margin: 20px auto;
+}
+
+#sales h2 {
+  color: #FF7043;
+  text-align: center;
+}
+
+#sales p {
+  text-align: center;
+  color: #555;
+  font-size: 1.1em;
+  margin-bottom: 20px;
+}
+
+/* Sale Form */
+#saleForm {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+#saleForm label {
+  font-size: 1.1em;
+  color: #333;
+}
+
+#saleForm select, 
+#saleForm input[type="number"] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1em;
+  width: 100%;
+}
+
+#saleForm button {
+  padding: 12px;
+  background-color: #FF7043;
+  color: white;
+  font-size: 1.1em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#saleForm button:hover {
+  background-color: #e65c41;
+}
+
+/* Sales Records Table */
+#salesTable {
+  width: 100%;
+  margin-top: 40px;
+  border-collapse: collapse;
+}
+
+#salesTable th, 
+#salesTable td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+#salesTable th {
+  background-color: #f2f2f2;
+  color: #333;
+}
+
+#salesTable tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+#salesTable tr:hover {
+  background-color: #f1f1f1;
+}
+
+#salesTable td {
+  font-size: 1em;
+  color: #555;
+}
+</style>
+<section id="sales" class="dashboard-section">
+    <h2>Sales</h2>
+
+    <!-- Sale Form -->
+    <form id="saleForm">
+        <label for="product_id">Product:</label>
+        <select id="product_id" name="product_id" required>
+            <option value="" disabled selected>Select a product</option>
+            <!-- Products will be dynamically populated here -->
+        </select>
+
+        <label for="quantity_sold">Quantity Sold:</label>
+        <input type="number" id="quantity_sold" name="quantity_sold" required>
+
+        <label for="sale_amount">Sale Amount:</label>
+        <input type="number" id="sale_amount" name="sale_amount" required>
+
+        <button type="submit">Submit Sale</button>
+    </form>
+
+    <!-- Sales Table -->
+    <h3>Sales Records</h3>
+    <table id="salesTable">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity Sold</th>
+                <th>Sale Amount</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Sales will be populated here -->
+        </tbody>
+    </table><br>
+    <br><a href="dashboard.html" class="button-link">Home Page</a>
+</section>
+
+<script>
+// Fetch products and populate the dropdown
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('http://localhost:3002/products')
+        .then(response => response.json())
+        .then(products => {
+            const productSelect = document.getElementById('product_id');
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.id;
+                option.textContent = product.product_name;
+                productSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching products:', error));
+
+    // Fetch and display existing sales
+    fetch('http://localhost:3002/sales')
+        .then(response => response.json())
+        .then(sales => {
+            const salesTable = document.getElementById('salesTable').getElementsByTagName('tbody')[0];
+            sales.forEach(sale => {
+                const row = salesTable.insertRow();
+                row.innerHTML = `
+                    <td>${sale.product_name}</td>
+                    <td>${sale.quantity_sold}</td>
+                    <td>${sale.sale_amount}</td>
+                    <td>${new Date(sale.sale_date).toLocaleString()}</td>
+                `;
+            });
+        })
+        .catch(error => console.error('Error fetching sales:', error));
+});
+
+// Handle sale form submission
+document.getElementById('saleForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const product_id = document.getElementById('product_id').value;
+    const quantity_sold = document.getElementById('quantity_sold').value;
+    const sale_amount = document.getElementById('sale_amount').value;
+
+    // Fetch the product name for the selected product
+    const productName = document.querySelector(`#product_id option[value="${product_id}"]`).text;
+
+    const saleData = { product_id, quantity_sold, sale_amount, product_name: productName };
+
+    fetch('http://localhost:3002/add-sale', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(saleData),
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        if (data.message === 'Sale recorded and product quantity updated') {
+            // Optionally refresh the sales records
+            location.reload();  // Reload to fetch updated sales and product quantities
+        }
+    })
+    .catch(error => console.error('Error adding sale:', error));
+});
+</script>

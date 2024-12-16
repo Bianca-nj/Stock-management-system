@@ -1,0 +1,223 @@
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-image: url(img.jpg);
+  background-repeat: no-repeat; 
+  background-size: cover; 
+  background-position: center; 
+  margin: 0;
+  padding: 0;
+}
+
+
+.dashboard-section {
+  width: 80%;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h2, h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 24px;
+}
+
+h3 {
+  font-size: 20px;
+  margin-top: 30px;
+  margin-bottom: 10px;
+}
+
+/* Form Styles */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+input[type="text"], input[type="number"] {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+}
+
+input[type="text"]:focus, input[type="number"]:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #218838;
+}
+
+button:focus {
+  outline: none;
+}
+
+/* Product List */
+#product-list {
+  margin-top: 20px;
+}
+
+#product-list div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #f8f9fa;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+#product-list button {
+  padding: 5px 10px;
+  font-size: 14px;
+  background-color: #007bff;
+}
+
+
+</style>
+<section id="add-products" class="dashboard-section">
+  <h2>Add New Product</h2>
+  <!-- Add Product Form -->
+  <form id="add-product-form">
+    <input type="text" id="product-name" placeholder="Product Name" required>
+    <input type="number" id="quantity" placeholder="Quantity" required>
+    <input type="number" id="price" placeholder="Price" required>
+    <button type="submit">Add Product</button>
+  </form>
+
+  <!-- Product List -->
+  <h3>Product List</h3>
+  <div id="product-list"></div><br>
+  <br><a href="dashboard.html" class="button-link">Home Page</a>
+</section>
+
+<script>
+  const API_URL = 'http://localhost:3002'; // Backend URL
+
+  // Frontend: Add Product
+  document.getElementById('add-product-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const productName = document.getElementById('product-name').value;
+    const quantity = document.getElementById('quantity').value;
+    const price = document.getElementById('price').value;
+
+    try {
+      const response = await fetch(`${API_URL}/add-product`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_name: productName, quantity: quantity, price: price }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert(data.message);
+        getAllProducts(); // Refresh product list
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('Error adding product:', error);
+      alert('An error occurred while adding the product');
+    }
+  });
+
+  // Frontend: Get and Display All Products
+  async function getAllProducts() {
+    try {
+      const response = await fetch(`${API_URL}/products`);
+      const products = await response.json();
+
+      const productList = document.getElementById('product-list');
+      productList.innerHTML = ''; // Clear the list before adding new products
+
+      products.forEach(product => {
+        const productDiv = document.createElement('div');
+        productDiv.innerHTML = `
+          <p>${product.product_name} | ${product.quantity} | $${product.price}</p>
+          <button onclick="editProduct(${product.id})">Edit</button>
+          <button onclick="deleteProduct(${product.id})">Delete</button>
+        `;
+        productList.appendChild(productDiv);
+      });
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      alert('An error occurred while fetching the products');
+    }
+  }
+
+  // Frontend: Edit Product
+  async function editProduct(id) {
+    const productName = prompt('Enter new product name:');
+    const quantity = prompt('Enter new quantity:');
+    const price = prompt('Enter new price:');
+
+    try {
+      const response = await fetch(`${API_URL}/update-product/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_name: productName, quantity: quantity, price: price }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert('Product updated successfully');
+        getAllProducts(); // Refresh the product list
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('Error updating product:', error);
+      alert('An error occurred while updating the product');
+    }
+  }
+
+  // Frontend: Delete Product
+async function deleteProduct(id) {
+  if (!id) {
+    alert('Invalid product ID');
+    return;
+  }
+
+  if (confirm('Are you sure you want to delete this product?')) {
+    try {
+      const response = await fetch(`${API_URL}/delete-product/${id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Product deleted successfully');
+        getAllProducts(); // Refresh the product list
+      } else {
+        alert(data.message || 'Failed to delete the product');
+      }
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      alert('An error occurred while deleting the product');
+    }
+  }
+}
+
+
+  // Initial fetch of products when the page loads
+  window.onload = getAllProducts;
+</script>

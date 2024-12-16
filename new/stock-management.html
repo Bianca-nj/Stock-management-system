@@ -1,0 +1,201 @@
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-image: url(img.jpg);
+  background-repeat: no-repeat; 
+  background-size: cover; 
+  background-position: center; 
+  margin: 0;
+  padding: 0;
+}
+
+/* Stock Management Section */
+#stock-management {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  margin: 20px auto;
+}
+
+#stock-management h2 {
+  color: #4CAF50;
+  text-align: center;
+}
+
+#stock-management p {
+  text-align: center;
+  color: #555;
+  font-size: 1.1em;
+  margin-bottom: 20px;
+}
+
+/* Stock Management Form */
+#stockForm {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+#stockForm label {
+  font-size: 1.1em;
+  color: #333;
+}
+
+#stockForm select, 
+#stockForm input[type="number"] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1em;
+  width: 100%;
+}
+
+#stockForm button {
+  padding: 12px;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 1.1em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#stockForm button:hover {
+  background-color: #45a049;
+}
+
+/* Stock Information Table */
+#stockTable {
+  width: 100%;
+  margin-top: 40px;
+  border-collapse: collapse;
+}
+
+#stockTable th, 
+#stockTable td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+#stockTable th {
+  background-color: #f2f2f2;
+  color: #333;
+}
+
+#stockTable tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+#stockTable tr:hover {
+  background-color: #f1f1f1;
+}
+
+#stockTable td {
+  font-size: 1em;
+  color: #555;
+}
+</style>
+<section id="stock-management" class="dashboard-section">
+    <h2>Stock Management</h2>
+    <p>Manage your inventory levels, update low-stock thresholds, and track stock information.</p>
+
+    <!-- Stock Management Form -->
+    <form id="stockForm">
+        <label for="product_id">Product:</label>
+        <select id="product_id" name="product_id" required>
+            <option value="" disabled selected>Select a product</option>
+            <!-- Products will be dynamically populated here -->
+        </select>
+
+        <label for="low_stock_threshold">Low Stock Threshold:</label>
+        <input type="number" id="low_stock_threshold" name="low_stock_threshold" required>
+
+        <button type="submit">Update Stock Info</button>
+    </form>
+
+    <!-- Stock Information Table -->
+    <h3>Current Stock</h3>
+    <table id="stockTable">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity in Stock</th>
+                <th>Low Stock Threshold</th>
+                <th>Last Updated</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Stock records will be populated here -->
+        </tbody>
+    </table><br>
+   <br> <a href="dashboard.html" class="button-link">Home Page</a>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch products to populate the product dropdown
+    fetch('http://localhost:3002/products')
+        .then(response => response.json())
+        .then(products => {
+            const productSelect = document.getElementById('product_id');
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.id;
+                option.textContent = product.product_name;
+                productSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching products:', error));
+
+    // Fetch and display current stock information
+    fetch('http://localhost:3002/stock')
+        .then(response => response.json())
+        .then(stock => {
+            const stockTable = document.getElementById('stockTable').getElementsByTagName('tbody')[0];
+            stock.forEach(entry => {
+                const row = stockTable.insertRow();
+                row.innerHTML = `
+                    <td>${entry.product_name}</td>
+                    <td>${entry.quantity_in_stock}</td>
+                    <td>${entry.low_stock_threshold}</td>
+                    <td>${new Date(entry.updated_at).toLocaleString()}</td>
+                `;
+            });
+        })
+        .catch(error => console.error('Error fetching stock:', error));
+});
+
+// Handle stock form submission
+document.getElementById('stockForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const product_id = document.getElementById('product_id').value;
+    const low_stock_threshold = document.getElementById('low_stock_threshold').value;
+
+    const stockData = { product_id, low_stock_threshold };
+
+    fetch('http://localhost:3002/add-update-stock-threshold', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(stockData),
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+        if (data.message === 'Stock threshold updated successfully' || data.message === 'Stock threshold added successfully') {
+            // Reload the stock table to fetch updated information
+            location.reload();
+        }
+    })
+    .catch(error => console.error('Error updating stock threshold:', error));
+});
+
+</script>

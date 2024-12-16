@@ -1,0 +1,83 @@
+<section id="reports" class="dashboard-section">
+    <h2>Reports</h2>
+    <table id="reportTable">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity Sold</th>
+                <th>Total Sales ($)</th>
+                <th>Low Stock Threshold</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Sales and Stock Data will be dynamically populated here -->
+        </tbody>
+    </table>
+</section>
+<style>
+#sales-report {
+    margin: 20px;
+}
+
+#reportTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#reportTable th, #reportTable td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+#reportTable th {
+    background-color: #f4f4f4;
+}
+
+#reportTable td {
+    background-color: #f9f9f9;
+}
+
+#reportTable tr:hover {
+    background-color: #f1f1f1;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch the generated report from the backend
+    fetch('http://localhost:3002/generate-report')
+        .then(response => response.json())
+        .then(data => {
+            if (data.report_data && data.report_data.length > 0) {
+                const reportTable = document.getElementById('reportTable').getElementsByTagName('tbody')[0];
+
+                // Loop through the report data and add rows to the table
+                data.report_data.forEach(product => {
+                    const row = reportTable.insertRow();
+
+                    row.innerHTML = `
+                        <td>${product.product_name}</td>
+                        <td>${product.quantity_sold}</td>
+                        <td>$${product.total_sale.toFixed(2)}</td>
+                        <td>${product.low_stock_threshold}</td>
+                    `;
+                });
+            } else {
+                // If no report data, show a message
+                const reportTable = document.getElementById('reportTable').getElementsByTagName('tbody')[0];
+                const row = reportTable.insertRow();
+                row.innerHTML = `<td colspan="4">No data available</td>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching report data:', error);
+
+            // Handle error gracefully and show a message in the table
+            const reportTable = document.getElementById('reportTable').getElementsByTagName('tbody')[0];
+            const row = reportTable.insertRow();
+            row.innerHTML = `<td colspan="4">Error fetching data. Please try again later.</td>`;
+        });
+});
+</script>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maguna Minimarket Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <div id="dashboard-container">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <h2>Maguna Minimarket</h2>
+            <ul>
+                <li><a href="stock-management.html" data-section="stock-management">Stock-Management</a></li>
+                <li><a href="sales.html" data-section="sales">Sales</a></li>
+                <li><a href="add-products.html" data-section="add-products">Products</a></li>
+                <li><a href="reports.html" data-section="reports">Reports</a></li>
+                <div class="logout">
+                    <li>
+                        <a href="login.html" class="btn"><i>Log out</i></a>
+                    </li>
+                </div>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <div id="main-content">
+            <div class="header">
+                <p>WELCOME</p>
+                </span>
+                <h3>MAGUNA MINIMARKET</h3>
+            </div>
+        </div>
+    </div>
+
+    <ul>
+    <li><a href="stock-management.html" data-section="stock-management">Stock Management</a></li>
+    <li><a href="overview.html" data-section="overview">Overview</a></li>
+    <li><a href="sales.html" data-section="sales">Sales</a></li>
+    <li><a href="add-products.html" data-section="add-products">Add New Product</a></li>
+    <li><a href="reports.html" data-section="reports">Reports</a></li>
+    <div class="logout">
+        <li>
+            <a href="login.html" class="btn"><i>Log out</i></a>
+        </li>
+    </div>
+</ul>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+    const dashboardContainer = document.getElementById('dashboard-container');
+    const mainContent = document.getElementById('main-content');
+
+    if (dashboardContainer) {
+        const links = document.querySelectorAll('#sidebar a[data-section]');
+
+        // Function to load the HTML content of a section into main-content
+        function loadSection(sectionFile) {
+            fetch(sectionFile)
+                .then(response => response.text())
+                .then(data => {
+                    mainContent.innerHTML = data; // Inject the content into the main-content
+                })
+                .catch(error => {
+                    console.error('Error loading the section:', error);
+                });
+            }
+
+            //Load overview by default
+        loadSection('overview.html');
+
+        // Add click event to each sidebar link
+        links.forEach(link => {
+            link.addEventListener('click', function () {
+                e.preventDefault();
+                const sectionFile = this.getAttribute('href'); // Get the HTML file
+
+                // Load the selected section
+                loadSection(sectionFile);
+
+                // Add the 'active' class to highlight the selected link
+                links.forEach(link => link.classList.remove('active')); // Remove 'active' from all links
+                this.classList.add('active'); // Add 'active' to the clicked link
+            });
+        });
+
+    }
+});
+
+    </script>
+</body>
+</html>
