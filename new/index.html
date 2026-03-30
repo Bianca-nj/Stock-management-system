@@ -4,40 +4,208 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maguna Minimarket Sign-Up</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
 
+        body { 
+            font-family: 'Arial', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            background-color: black; 
+        }
+
+        .container { 
+            display: flex; 
+            width: 100%; 
+            height: 100vh; 
+        }
+
+        .left-section { 
+            width: 50%; 
+            position: relative; 
+            background-image: url('img.jpg'); 
+            background-size: cover; 
+            background-repeat: no-repeat; 
+        }
+
+        .overlay-text { 
+            position: absolute; 
+            top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); 
+            text-align: center; 
+            color: black; 
+            font-size: 24px; 
+            font-weight: bold; 
+        }
+
+        .right-section { 
+            width: 50%; 
+            background-color: beige; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+        }
+        
+        .signup-form { 
+            width: 80%; 
+            max-width: 400px; 
+        }
+
+        .field-group { 
+            display: flex; 
+            flex-direction: column; 
+            margin-bottom: 15px; 
+        }
+
+        .field-group label { 
+            font-size: 0.9rem; 
+            color: hsl(210, 100%, 40%); 
+            margin-bottom: 5px; 
+        }
+
+        .password-wrapper { 
+            position: relative; 
+            display: flex; 
+            align-items: center; 
+        }
+
+        .password-wrapper input { 
+            width: 100%; 
+            padding: 10px 40px 10px 10px; 
+            border-radius: 5px; 
+            border: 1px solid #ccc; 
+            font-size: 1rem; 
+            box-sizing: border-box; 
+        }
+
+        input[type="text"], input[type="email"] { 
+            width: 100%; 
+            padding: 10px; 
+            border-radius: 5px; 
+            border: 1px solid #ccc; font-size: 1rem; 
+            box-sizing: border-box; 
+        }
+
+        .eye-toggle { 
+            position: absolute; 
+            right: 10px; 
+            cursor: pointer; 
+            font-size: 1.1rem; 
+            user-select: none; 
+        }
+
+        button { 
+            width: 100%; 
+            padding: 10px; 
+            border-radius: 5px; 
+            border: none; 
+            background-color: hsl(210, 100%, 50%); 
+            color: white; 
+            font-size: 1rem; 
+            cursor: pointer; 
+            margin-top: 5px; 
+        }
+
+        button:hover { 
+            background-color: hsl(210, 100%, 60%); 
+        }
+
+        a { color: hsl(210, 100%, 40%); 
+            text-decoration: none; 
+            font-size: 0.9rem; 
+        }
+
+        p { 
+            margin-top: 12px; 
+            font-size: 0.9rem; 
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <div class="left-section">
-            <div class="overlay-text">
-                <h1>MAGUNA MINIMARKET</h1>
-            </div>
+            <div class="overlay-text"><h1>MAGUNA MINIMARKET</h1></div>
         </div>
         <div class="right-section">
             <form class="signup-form" id="signup-form">
                 <h1>Sign Up</h1><br>
-                <div class="input-container">
-                    <label for="username">Username:</label>
+
+                <div class="field-group">
                     <input type="text" id="username" placeholder="Enter your username" required>
-                </div><br>
-                <div class="input-container">
-                    <label for="email">Email:</label>
+                </div>
+
+                <div class="field-group">
                     <input type="email" id="email" placeholder="Enter your email" required>
-                </div><br>
-                <div class="input-container">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" placeholder="Enter your password" required>
-                </div><br>
-                <div class="input-container">
-                    <label for="confirm-password">Confirm Password:</label>
-                    <input type="password" id="confirm-password" placeholder="Confirm your password" required>
-                </div><br>
-                <button type="submit">SIGN UP </button><br>
+                </div>
+
+                <div class="field-group">
+                    <div class="password-wrapper">
+                        <input type="password" id="passwordInput" placeholder="Password" required>
+                        <span class="eye-toggle" onclick="togglePassword('passwordInput', this)">👁️</span>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="password-wrapper">
+                        <input type="password" id="confirmPasswordInput" placeholder="Confirm Password" required>
+                        <span class="eye-toggle" onclick="togglePassword('confirmPasswordInput', this)">👁️</span>
+                    </div>
+                </div>
+
+                <button type="submit">SIGN UP</button>
                 <p>Already have an account? <a href="login.html">Log in</a></p>
             </form>
         </div>
     </div>
-    <script src="index.js"></script>
+
+    <script>
+        function togglePassword(inputId, eyeIcon) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                eyeIcon.textContent = "🙈";
+            } else {
+                input.type = "password";
+                eyeIcon.textContent = "👁️";
+            }
+        }
+
+        document.getElementById('signup-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('passwordInput').value;
+            const confirmPassword = document.getElementById('confirmPasswordInput').value;
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            try {
+                const response = await fetch('/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                if (response.ok) {
+                    alert('User registered successfully');
+                    window.location.href = 'login.html';
+                } else {
+                    const data = await response.json();
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred');
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,148 +1,542 @@
-<style>
-  body{
-    font-family: Arial, sans-serif;
-  background-image: url(img.jpg);
-  background-repeat: no-repeat; 
-  background-size: cover; 
-  background-position: center; 
-  margin: 0;
-  padding: 0;
-  }
-  
-.reports-section {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 1000px;
-  margin: 30px auto;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Maguna Minimarket</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --green: #1a7a4a;
+            --green-light: #e8f5ee;
+            --green-dark: #145c38;
+            --red: #dc3545;
+            --red-light: #fef2f2;
+            --amber: #f59e0b;
+            --amber-light: #fef3c7;
+            --blue: #0057b8;
+            --blue-light: #eff6ff;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e2e8f0;
+            --bg: #f7f9fc;
+            --white: #ffffff;
+        }
 
-.reports-section h1 {
-  text-align: center;
-  color: #FF7043;
-  font-size: 2.5em;
-  margin-bottom: 20px;
-}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* Reports Table */
-#reportTable {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-image: url(img.jpg);
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
 
-#reportTable th, #reportTable td {
-  padding: 12px;
-  text-align: left;
-  border: 1px solid #ddd;
-}
+        /* ── TOPBAR ── */
+        .topbar {
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 32px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100;
+        }
 
-#reportTable th {
-  background-color: #f4f4f4;
-  color: #333;
-  font-weight: bold;
-}
+        .back-btn {
+            display: flex; align-items: center; gap: 8px;
+            text-decoration: none; color: var(--green-dark);
+            font-weight: 600; font-size: 0.9rem;
+            padding: 8px 16px; border: 2px solid var(--green);
+            border-radius: 8px; transition: all 0.2s ease; background: var(--white);
+        }
+        .back-btn:hover { background: var(--green); color: var(--white); transform: translateX(-2px); }
+        .back-btn .arrow { transition: transform 0.2s ease; }
+        .back-btn:hover .arrow { transform: translateX(-3px); }
 
-#reportTable td {
-  background-color: #f9f9f9;
-  color: #555;
-}
+        .topbar-title { font-family: 'Syne', sans-serif; font-size: 1.2rem; color: var(--text); }
+        .topbar-title span { color: var(--green); }
 
-#reportTable tr:nth-child(even) {
-  background-color: #fafafa;
-}
+        /* ── MAIN CARD ── */
+        .reports-section {
+            width: 90%; max-width: 960px;
+            margin: 32px auto 0; padding: 32px;
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
 
-#reportTable tr:hover {
-  background-color: #f1f1f1;
-}
+        .page-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 28px;
+        }
 
-/* Download Report Button */
-.download-report {
-  padding: 12px 25px;
-  background-color: #FF7043;
-  color: white;
-  font-size: 1.2em;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  display: block;
-  margin: 20px auto;
-  transition: background-color 0.3s ease;
-}
+        .page-header h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.6rem; color: var(--text);
+        }
 
-.download-report:hover {
-  background-color: #e65c41;
-}
+        .download-btn {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 20px; background: var(--green);
+            color: white; border: none; border-radius: 8px;
+            font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+            font-weight: 600; cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .download-btn:hover { background: var(--green-dark); }
+        .download-btn:active { transform: scale(0.98); }
+        .download-btn:disabled { background: var(--muted); cursor: not-allowed; }
 
-.download-report:focus {
-  outline: none;
-}
-</style>
+        /* ── FILTER BAR ── */
+        .filter-bar {
+            display: flex; gap: 12px; align-items: end;
+            flex-wrap: wrap;
+            padding: 20px; background: var(--bg);
+            border-radius: 12px; margin-bottom: 28px;
+            border: 1px solid var(--border);
+        }
 
-<div class="reports-section">
-  <h1>Reports</h1>
-  <section id="reports" class="dashboard-section">
-      <h2>Reports</h2>
-      <table id="reportTable">
-          <thead>
-              <tr>
-                  <th>Product</th>
-                  <th>Quantity Sold</th>
-                  <th>Total Sales ($)</th>
-                  <th>Total Products</th>
-              </tr>
-          </thead>
-          <tbody>
-              <!-- Sales and Stock Data will be dynamically populated here -->
-          </tbody>
-      </table><br>
-      
-<br><a href="dashboard.html" class="button-link">Home Page</a>
-  </section>
-  
-  <script>
-  document.addEventListener('DOMContentLoaded', function() {
-      // Fetch the generated report from the backend
-      fetch('http://localhost:3002/generate-report')
-          .then(response => response.json())
-          .then(data => {
-              if (data.report_data && data.report_data.length > 0) {
-                  const reportTable = document.getElementById('reportTable').getElementsByTagName('tbody')[0];
-  
-                  // Loop through the report data and add rows to the table
-                  data.report_data.forEach(product => {
-                      const row = reportTable.insertRow();
-  
-                      row.innerHTML = `
-                          <td>${product.product_name}</td>
-                          <td>${product.quantity_sold}</td>
-                          <td>$${product.total_sale.toFixed(2)}</td>
-                          <td>${product.total_products}</td>
-                      `;
-                  });
-              } else {
-                  // If no report data, show a message
-                  const reportTable = document.getElementById('reportTable').getElementsByTagName('tbody')[0];
-                  const row = reportTable.insertRow();
-                  row.innerHTML = `<td colspan="4">No data available</td>`;
-              }
-          })
-          .catch(error => {
-              console.error('Error fetching report data:', error);
-  
-              // Handle error gracefully and show a message in the table
-              const reportTable = document.getElementById('reportTable').getElementsByTagName('tbody')[0];
-              const row = reportTable.insertRow();
-              row.innerHTML = `<td colspan="4">Error fetching data. Please try again later.</td>`;
-          });
+        .filter-group { display: flex; flex-direction: column; gap: 6px; }
 
-      // Handle the download button click
-      document.querySelector('.download-report').addEventListener('click', function() {
-          // Trigger a download of the report as CSV
-          window.location.href = 'http://localhost:3002/download-report';
-      });
-  });
-  </script>
-  <button class="download-report">Download Report</button>
-</div>
+        .filter-group label {
+            font-size: 0.75rem; font-weight: 600;
+            color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        select, input[type="date"], input[type="month"], input[type="number"] {
+            padding: 9px 12px; font-size: 0.9rem;
+            font-family: 'DM Sans', sans-serif;
+            border: 1.5px solid var(--border); border-radius: 8px;
+            color: var(--text); background: var(--white);
+            transition: border-color 0.2s; min-width: 140px;
+        }
+
+        select:focus, input:focus { border-color: var(--green); outline: none; }
+
+        .generate-btn {
+            padding: 9px 20px; background: var(--green);
+            color: white; border: none; border-radius: 8px;
+            font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+            font-weight: 600; cursor: pointer; height: 40px;
+            transition: background 0.2s;
+        }
+        .generate-btn:hover { background: var(--green-dark); }
+
+        /* ── SUMMARY CARDS ── */
+        .summary-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 16px; margin-bottom: 28px;
+        }
+
+        .summary-card {
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 12px; padding: 18px;
+        }
+
+        .summary-card .label {
+            font-size: 0.75rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--muted); margin-bottom: 6px;
+        }
+
+        .summary-card .value {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.6rem; font-weight: 800; color: var(--text);
+        }
+
+        .summary-card .sub { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+
+        /* ── SECTION TITLES ── */
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1rem; font-weight: 700;
+            color: var(--text); margin: 28px 0 14px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .section-title::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+
+        /* ── TABLES ── */
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+
+        th {
+            background: var(--bg); color: var(--muted);
+            font-size: 0.73rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            padding: 11px 14px; text-align: left;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td { padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--text); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--bg); }
+
+        .rank-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 24px; height: 24px; border-radius: 50%;
+            font-size: 0.75rem; font-weight: 700;
+        }
+
+        .rank-1 { background: #fef3c7; color: #92400e; }
+        .rank-2 { background: #f1f5f9; color: #475569; }
+        .rank-3 { background: #fff7ed; color: #9a3412; }
+        .rank-other { background: var(--bg); color: var(--muted); }
+
+        .stock-badge {
+            display: inline-block; padding: 3px 10px;
+            border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+        }
+        .stock-ok { background: var(--green-light); color: var(--green-dark); }
+        .stock-low { background: var(--amber-light); color: var(--amber); }
+        .stock-critical { background: var(--red-light); color: var(--red); }
+
+        .empty-state {
+            text-align: center; padding: 40px;
+            color: var(--muted); font-size: 0.9rem;
+        }
+
+        .hidden { display: none; }
+
+        #report-output { display: none; }
+
+        @media (max-width: 640px) {
+            .summary-grid { grid-template-columns: 1fr; }
+            .filter-bar { flex-direction: column; }
+            .reports-section { width: 95%; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="topbar">
+        <a href="dashboard.html" class="back-btn"><span class="arrow">←</span> Back</a>
+        <span class="topbar-title">MAGUNA <span>Minimarket</span></span>
+        <div style="width:140px"></div>
+    </nav>
+
+    <div class="reports-section">
+        <div class="page-header">
+            <h1>Reports</h1>
+            <button class="download-btn" id="download-btn" disabled onclick="downloadReport()">
+                ⬇ Download PDF
+            </button>
+        </div>
+
+        <!-- FILTER BAR -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label>Report Type</label>
+                <select id="report-type" onchange="updateDateInputs()">
+                    <option value="">-- Select type --</option>
+                    <option value="daily">Daily</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                    <option value="custom">Custom Range</option>
+                </select>
+            </div>
+
+            <!-- Daily -->
+            <div class="filter-group hidden" id="input-daily">
+                <label>Date</label>
+                <input type="date" id="date-daily">
+            </div>
+
+            <!-- Monthly -->
+            <div class="filter-group hidden" id="input-monthly">
+                <label>Month</label>
+                <input type="month" id="date-monthly">
+            </div>
+
+            <!-- Yearly -->
+            <div class="filter-group hidden" id="input-yearly">
+                <label>Year</label>
+                <input type="number" id="date-yearly" placeholder="e.g. 2025" min="2000" max="2100">
+            </div>
+
+            <!-- Custom Range -->
+            <div class="filter-group hidden" id="input-custom-start">
+                <label>From</label>
+                <input type="date" id="date-custom-start">
+            </div>
+            <div class="filter-group hidden" id="input-custom-end">
+                <label>To</label>
+                <input type="date" id="date-custom-end">
+            </div>
+
+            <button class="generate-btn" onclick="generateReport()">Generate</button>
+        </div>
+
+        <!-- REPORT OUTPUT -->
+        <div id="report-output">
+
+            <!-- SUMMARY CARDS -->
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="label">Total Revenue</div>
+                    <div class="value" id="sum-revenue">—</div>
+                    <div class="sub">From sales in period</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Units Sold</div>
+                    <div class="value" id="sum-units">—</div>
+                    <div class="sub">Total items sold</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Transactions</div>
+                    <div class="value" id="sum-transactions">—</div>
+                    <div class="sub">Number of sales</div>
+                </div>
+            </div>
+
+            <!-- SALES SUMMARY -->
+            <div class="section-title">📊 Sales Summary</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Qty Sold</th>
+                        <th>Unit Price</th>
+                        <th>Total (KSh)</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="sales-body">
+                    <tr><td colspan="5" class="empty-state">No data</td></tr>
+                </tbody>
+            </table>
+
+            <!-- BEST SELLING -->
+            <div class="section-title">🏆 Best Selling Products</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Product</th>
+                        <th>Units Sold</th>
+                        <th>Revenue (KSh)</th>
+                    </tr>
+                </thead>
+                <tbody id="bestselling-body">
+                    <tr><td colspan="4" class="empty-state">No data</td></tr>
+                </tbody>
+            </table>
+
+            <!-- RESTOCK HISTORY -->
+            <div class="section-title">📦 Restock History</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Units Added</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="restock-body">
+                    <tr><td colspan="3" class="empty-state">No data</td></tr>
+                </tbody>
+            </table>
+
+            <!-- LOW STOCK -->
+            <div class="section-title">⚠️ Current Low Stock</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>In Stock</th>
+                        <th>Alert Threshold</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="lowstock-body">
+                    <tr><td colspan="4" class="empty-state">No data</td></tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3002';
+        function getToken() { return localStorage.getItem('token'); }
+        function authHeaders() {
+            return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` };
+        }
+
+        if (!getToken()) window.location.href = 'login.html';
+
+        // Show/hide date inputs based on report type
+        function updateDateInputs() {
+            const type = document.getElementById('report-type').value;
+            const allInputs = ['input-daily', 'input-monthly', 'input-yearly', 'input-custom-start', 'input-custom-end'];
+            allInputs.forEach(id => document.getElementById(id).classList.add('hidden'));
+
+            if (type === 'daily') document.getElementById('input-daily').classList.remove('hidden');
+            if (type === 'monthly') document.getElementById('input-monthly').classList.remove('hidden');
+            if (type === 'yearly') document.getElementById('input-yearly').classList.remove('hidden');
+            if (type === 'custom') {
+                document.getElementById('input-custom-start').classList.remove('hidden');
+                document.getElementById('input-custom-end').classList.remove('hidden');
+            }
+        }
+
+        // Build date range from inputs
+        function getDateRange() {
+            const type = document.getElementById('report-type').value;
+            let start, end;
+
+            if (type === 'daily') {
+                const d = document.getElementById('date-daily').value;
+                if (!d) { alert('Please select a date'); return null; }
+                start = d; end = d;
+            } else if (type === 'monthly') {
+                const m = document.getElementById('date-monthly').value;
+                if (!m) { alert('Please select a month'); return null; }
+                const [year, month] = m.split('-');
+                const lastDay = new Date(year, month, 0).getDate();
+                start = `${m}-01`; end = `${m}-${lastDay}`;
+            } else if (type === 'yearly') {
+                const y = document.getElementById('date-yearly').value;
+                if (!y) { alert('Please enter a year'); return null; }
+                start = `${y}-01-01`; end = `${y}-12-31`;
+            } else if (type === 'custom') {
+                start = document.getElementById('date-custom-start').value;
+                end = document.getElementById('date-custom-end').value;
+                if (!start || !end) { alert('Please select both start and end dates'); return null; }
+                if (start > end) { alert('Start date cannot be after end date'); return null; }
+            } else {
+                alert('Please select a report type');
+                return null;
+            }
+            return { start, end };
+        }
+
+        async function generateReport() {
+            const range = getDateRange();
+            if (!range) return;
+
+            const { start, end } = range;
+
+            // Show output area
+            document.getElementById('report-output').style.display = 'block';
+            document.getElementById('download-btn').disabled = false;
+
+            // Store for download
+            window._reportRange = { start, end };
+
+            await Promise.all([
+                loadSales(start, end),
+                loadRestocks(start, end),
+                loadLowStock()
+            ]);
+        }
+
+        async function loadSales(start, end) {
+            try {
+                const res = await fetch(`${API_URL}/report-sales?start=${start}&end=${end}`, { headers: authHeaders() });
+                const sales = await res.json();
+
+                // Summary cards
+                const totalRevenue = sales.reduce((sum, s) => sum + parseFloat(s.total_price), 0);
+                const totalUnits = sales.reduce((sum, s) => sum + parseInt(s.quantity_sold), 0);
+                document.getElementById('sum-revenue').textContent = `KSh ${totalRevenue.toLocaleString('en-KE', { minimumFractionDigits: 2 })}`;
+                document.getElementById('sum-units').textContent = totalUnits;
+                document.getElementById('sum-transactions').textContent = sales.length;
+
+                // Sales table
+                const salesBody = document.getElementById('sales-body');
+                salesBody.innerHTML = sales.length === 0
+                    ? '<tr><td colspan="5" class="empty-state">No sales in this period</td></tr>'
+                    : sales.map(s => `
+                        <tr>
+                            <td>${s.product_name}</td>
+                            <td>${s.quantity_sold}</td>
+                            <td>KSh ${parseFloat(s.unit_price).toFixed(2)}</td>
+                            <td>KSh ${parseFloat(s.total_price).toFixed(2)}</td>
+                            <td>${new Date(s.sale_date).toLocaleDateString('en-KE')}</td>
+                        </tr>`).join('');
+
+                // Best selling — group by product
+                const productMap = {};
+                sales.forEach(s => {
+                    if (!productMap[s.product_name]) productMap[s.product_name] = { units: 0, revenue: 0 };
+                    productMap[s.product_name].units += parseInt(s.quantity_sold);
+                    productMap[s.product_name].revenue += parseFloat(s.total_price);
+                });
+
+                const ranked = Object.entries(productMap)
+                    .sort((a, b) => b[1].units - a[1].units);
+
+                const bestBody = document.getElementById('bestselling-body');
+                bestBody.innerHTML = ranked.length === 0
+                    ? '<tr><td colspan="4" class="empty-state">No sales in this period</td></tr>'
+                    : ranked.map(([name, data], i) => {
+                        const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
+                        return `<tr>
+                            <td><span class="rank-badge ${rankClass}">${i + 1}</span></td>
+                            <td>${name}</td>
+                            <td>${data.units}</td>
+                            <td>KSh ${data.revenue.toLocaleString('en-KE', { minimumFractionDigits: 2 })}</td>
+                        </tr>`;
+                    }).join('');
+
+            } catch (err) {
+                console.error('Error loading sales:', err);
+            }
+        }
+
+        async function loadRestocks(start, end) {
+            try {
+                const res = await fetch(`${API_URL}/report-restocks?start=${start}&end=${end}`, { headers: authHeaders() });
+                const restocks = await res.json();
+
+                const body = document.getElementById('restock-body');
+                body.innerHTML = restocks.length === 0
+                    ? '<tr><td colspan="3" class="empty-state">No restocks in this period</td></tr>'
+                    : restocks.map(r => `
+                        <tr>
+                            <td>${r.product_name}</td>
+                            <td>+${r.quantity_added}</td>
+                            <td>${new Date(r.restock_date).toLocaleDateString('en-KE')}</td>
+                        </tr>`).join('');
+            } catch (err) {
+                console.error('Error loading restocks:', err);
+            }
+        }
+
+        async function loadLowStock() {
+            try {
+                const res = await fetch(`${API_URL}/stock`, { headers: authHeaders() });
+                const stock = await res.json();
+                const lowStock = stock.filter(p => p.quantity_in_stock <= p.low_stock_threshold);
+
+                const body = document.getElementById('lowstock-body');
+                body.innerHTML = lowStock.length === 0
+                    ? '<tr><td colspan="4" class="empty-state">✅ All products are well stocked</td></tr>'
+                    : lowStock.map(p => {
+                        const cls = p.quantity_in_stock <= 3 ? 'stock-critical' : 'stock-low';
+                        const label = p.quantity_in_stock <= 3 ? '🔴 Critical' : '🟡 Low';
+                        return `<tr>
+                            <td>${p.product_name}</td>
+                            <td>${p.quantity_in_stock}</td>
+                            <td>${p.low_stock_threshold}</td>
+                            <td><span class="stock-badge ${cls}">${label}</span></td>
+                        </tr>`;
+                    }).join('');
+            } catch (err) {
+                console.error('Error loading low stock:', err);
+            }
+        }
+
+        function downloadReport() {
+            const { start, end } = window._reportRange;
+            window.location.href = `${API_URL}/download-report?start=${start}&end=${end}&token=${getToken()}`;
+        }
+    </script>
+</body>
+</html>

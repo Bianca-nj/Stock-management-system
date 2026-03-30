@@ -1,4 +1,18 @@
 <style>
+  :root {
+            --green: #1a7a4a;
+            --green-light: #e8f5ee;
+            --green-dark: #145c38;
+            --red: #dc3545;
+            --blue: #0057b8;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e2e8f0;
+            --bg: #f7f9fc;
+            --white: #ffffff;
+        }
+
+        
 body {
   font-family: Arial, sans-serif;
   background-image: url(img.jpg);
@@ -8,6 +22,61 @@ body {
   margin: 0;
   padding: 0;
 }
+
+ /* ── TOP NAV ── */
+        .topbar {
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--green-dark);
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 8px 16px;
+            border: 2px solid var(--green);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            background: var(--white);
+        }
+
+        .back-btn:hover {
+            background: var(--green);
+            color: var(--white);
+            transform: translateX(-2px);
+        }
+
+        .back-btn .arrow {
+            font-size: 1rem;
+            transition: transform 0.2s ease;
+        }
+
+        .back-btn:hover .arrow {
+            transform: translateX(-3px);
+        }
+
+        .topbar-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.2rem;
+            color: var(--text);
+            letter-spacing: 0.5px;
+        }
+
+        .topbar-title span {
+            color: var(--green);
+        }
 
 /* Sales Section */
 #sales {
@@ -100,11 +169,21 @@ body {
   font-size: 1em;
   color: #555;
 }
-</style>
-<section id="sales" class="dashboard-section">
-    <h2>Sales</h2>
 
-    <!-- Sale Form -->
+</style>
+ <!-- TOP NAV WITH BACK BUTTON -->
+    <nav class="topbar">
+        <a href="dashboard.html" class="back-btn">
+            <span class="arrow">←</span> Back 
+        </a>
+        <span class="topbar-title">MAGUNA <span>Minimarket</span></span>
+        <div style="width:140px"></div> <!-- spacer to center title -->
+    </nav>
+
+<section id="sales" class="dashboard-section">
+
+
+    <!-- Sale Form - Removed Sale Amount Field -->
     <form id="saleForm">
         <label for="product_id">Product:</label>
         <select id="product_id" name="product_id" required>
@@ -113,10 +192,7 @@ body {
         </select>
 
         <label for="quantity_sold">Quantity Sold:</label>
-        <input type="number" id="quantity_sold" name="quantity_sold" required>
-
-        <label for="sale_amount">Sale Amount:</label>
-        <input type="number" id="sale_amount" name="sale_amount" required>
+        <input type="number" id="quantity_sold" name="quantity_sold" required min="1">
 
         <button type="submit">Submit Sale</button>
     </form>
@@ -128,79 +204,164 @@ body {
             <tr>
                 <th>Product</th>
                 <th>Quantity Sold</th>
-                <th>Sale Amount</th>
+                <th>Unit Price</th>
+                <th>Total Amount</th>
                 <th>Date</th>
             </tr>
         </thead>
         <tbody>
             <!-- Sales will be populated here -->
         </tbody>
-    </table><br>
-    <br><a href="dashboard.html" class="button-link">Home Page</a>
+    </table>
+   
 </section>
 
 <script>
-// Fetch products and populate the dropdown
+// Store products data for real-time calculation
+let productsData = [];
+
+// Fetch products and populate the dropdown with real-time calculation
 document.addEventListener('DOMContentLoaded', function() {
-    fetch('http://localhost:3002/products')
+    fetch('http://localhost:3002/products', {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    })
         .then(response => response.json())
         .then(products => {
+            productsData = products;
             const productSelect = document.getElementById('product_id');
             products.forEach(product => {
                 const option = document.createElement('option');
                 option.value = product.id;
-                option.textContent = product.product_name;
+                option.textContent = `${product.name}`;
                 productSelect.appendChild(option);
             });
         })
         .catch(error => console.error('Error fetching products:', error));
 
     // Fetch and display existing sales
-    fetch('http://localhost:3002/sales')
+    fetchSales();
+});
+
+// Real-time calculation when quantity or product changes
+document.getElementById('product_id').addEventListener('change', calculateTotal);
+document.getElementById('quantity_sold').addEventListener('input', calculateTotal);
+
+function calculateTotal() {
+    const productId = document.getElementById('product_id').value;
+    const quantity = parseInt(document.getElementById('quantity_sold').value) || 0;
+    
+    if (productId && quantity > 0) {
+        const selectedProduct = productsData.find(p => p.id == productId);
+        if (selectedProduct) {
+            const total = selectedProduct.price * quantity;
+            document.getElementById('calculatedAmount').innerHTML = `
+                Total Amount: <strong>KSh ${total.toFixed(2)}</strong>
+                <br><small style="color: #666;">Unit Price: KSh ${selectedProduct.price.toFixed(2)}</small>
+            `;
+        }
+    } 
+}
+
+function fetchSales() {
+    fetch('http://localhost:3002/sales', {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    })
         .then(response => response.json())
         .then(sales => {
             const salesTable = document.getElementById('salesTable').getElementsByTagName('tbody')[0];
+            salesTable.innerHTML = ''; // Clear existing rows
+            
             sales.forEach(sale => {
                 const row = salesTable.insertRow();
                 row.innerHTML = `
                     <td>${sale.product_name}</td>
                     <td>${sale.quantity_sold}</td>
-                    <td>${sale.sale_amount}</td>
+                    <td>KSh ${parseFloat(sale.unit_price || (sale.total_price / sale.quantity_sold)).toFixed(2)}</td>
+                    <td>KSh ${parseFloat(sale.total_price).toFixed(2)}</td>
                     <td>${new Date(sale.sale_date).toLocaleString()}</td>
                 `;
             });
         })
         .catch(error => console.error('Error fetching sales:', error));
-});
+}
 
 // Handle sale form submission
-document.getElementById('saleForm').addEventListener('submit', function(e) {
+document.getElementById('saleForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
     const product_id = document.getElementById('product_id').value;
     const quantity_sold = document.getElementById('quantity_sold').value;
-    const sale_amount = document.getElementById('sale_amount').value;
+    
+    if (!product_id || !quantity_sold) {
+        alert('Please select a product and enter quantity');
+        return;
+    }
 
-    // Fetch the product name for the selected product
-    const productName = document.querySelector(`#product_id option[value="${product_id}"]`).text;
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('Please login first');
+        window.location.href = 'login.html';
+        return;
+    }
 
-    const saleData = { product_id, quantity_sold, sale_amount, product_name: productName };
+    const saleData = { 
+        product_id, 
+        quantity_sold: parseInt(quantity_sold)
+    };
 
-    fetch('http://localhost:3002/add-sale', {
-        method: 'POST',
+    try {
+        const response = await fetch('http://localhost:3002/add-sale', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(saleData),
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert(data.message + `\nTotal Amount: KSh ${data.total_amount}\nRemaining Stock: ${data.remaining_stock}`);
+            // Reset form
+            document.getElementById('saleForm').reset();
+            // Refresh sales list
+            fetchSales();
+            // Refresh products dropdown to show updated stock
+            refreshProducts();
+        } else {
+            alert(data.message || 'Error recording sale');
+        }
+    } catch (error) {
+        console.error('Error adding sale:', error);
+        alert('An error occurred while recording the sale');
+    }
+});
+
+// Function to refresh products dropdown after sale
+function refreshProducts() {
+    fetch('http://localhost:3002/products', {
         headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(saleData),
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message);
-        if (data.message === 'Sale recorded and product quantity updated') {
-            // Optionally refresh the sales records
-            location.reload();  // Reload to fetch updated sales and product quantities
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
     })
-    .catch(error => console.error('Error adding sale:', error));
-});
+        .then(response => response.json())
+        .then(products => {
+            productsData = products;
+            const productSelect = document.getElementById('product_id');
+            productSelect.innerHTML = '<option value="" disabled selected>Select a product</option>';
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.id;
+                option.setAttribute('data-price', product.price);
+                option.textContent = `${product.name} - KSh ${parseFloat(product.price).toFixed(2)} (Stock: ${product.quantity})`;
+                productSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error refreshing products:', error));
+}
 </script>

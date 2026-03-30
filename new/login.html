@@ -4,7 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maguna Minimarket Login</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { font-family: 'Arial', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: black; }
+
+        .container { display: flex; width: 100%; height: 100vh; }
+
+        .left-section { width: 50%; position: relative; background-image: url('img.jpg'); background-size: cover; background-repeat: no-repeat; }
+
+        .overlay-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: black; font-size: 24px; font-weight: bold; }
+
+        .right-section { width: 50%; background-color: beige; display: flex; justify-content: center; align-items: center; }
+
+        .login-form { width: 80%; max-width: 400px; }
+
+        .field-group { display: flex; flex-direction: column; margin-bottom: 15px; }
+
+        .field-group label { font-size: 0.9rem; color: hsl(210, 100%, 40%); margin-bottom: 5px; }
+
+        .field-group input[type="text"],
+        .field-group input[type="email"] { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box; }
+
+        .password-wrapper { position: relative; display: flex; align-items: center; }
+
+        .password-wrapper input { width: 100%; padding: 10px 40px 10px 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 1rem; box-sizing: border-box; }
+
+        .eye-toggle { position: absolute; right: 10px; cursor: pointer; font-size: 1.1rem; user-select: none; }
+
+        button { width: 100%; padding: 10px; border-radius: 5px; border: none; background-color: hsl(210, 100%, 50%); color: white; font-size: 1rem; cursor: pointer; margin-top: 5px; }
+
+        button:hover { background-color: hsl(210, 100%, 60%); }
+
+        a { color: hsl(210, 100%, 40%); text-decoration: none; font-size: 0.9rem; }
+
+        #forgot-password { display: block; margin-top: 10px; font-style: italic; }
+
+        p { margin-top: 12px; font-size: 0.9rem; }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -16,76 +53,81 @@
         <div class="right-section">
             <form class="login-form" id="login-form">
                 <h1>Log In</h1><br>
-                <div class="input-container">
-                    <label for="username">Username:</label>
+
+                <div class="field-group">
                     <input type="text" id="username" placeholder="Enter your username" required>
-                </div><br>
-                <div class="input-container">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" placeholder="Enter your password" required>
-                </div><br>
-                <button type="submit">LOG IN</button></a><br>
-                <a href="#" id="forgot-password">Forgot Password?</a><br>
-                <br><p>Don't have an account? <a href="index.html">Sign up</a></p>
+                </div>
+
+                <div class="field-group">
+                    <div class="password-wrapper">
+                        <input type="password" id="passwordInput" placeholder="Enter your password" required>
+                        <span class="eye-toggle" onclick="togglePassword('passwordInput', this)">👁️</span>
+                    </div>
+                </div>
+
+                <button type="submit">LOG IN</button>
+                <a href="#" id="forgot-password">Forgot Password?</a>
+                <p>Don't have an account? <a href="index.html">Sign up</a></p>
             </form>
         </div>
     </div>
+
     <script>
-document.getElementById('login-form').addEventListener('submit', async function (event) {
-    event.preventDefault(); // Prevent the default form submission
-
-    // Get user inputs
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-
-    if (username && password) {
-        try {
-            // Send login details to the server
-            const response = await fetch('/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password }),
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                // Store the username in localStorage
-                localStorage.setItem('username', result.username);
-
-                alert(result.message); // Show success message
-                window.location.href = "dashboard.html"; // Redirect to dashboard
+        function togglePassword(inputId, eyeIcon) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                eyeIcon.textContent = "🙈";
             } else {
-                alert(result.message); // Show error message
+                input.type = "password";
+                eyeIcon.textContent = "👁️";
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred. Please try again later.');
         }
-    } else {
-        alert('Please enter both username and password');
-    }
-});
 
-document.getElementById('forgot-password').addEventListener('click', () => {
-    // Prompt the user to enter their email
-    const email = prompt('Please enter your email to reset your password:');
+        document.getElementById('login-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
 
-    if (email) {
-        // Simulated list of saved emails
-        const savedEmails = ['user1@example.com', 'user2@example.com', 'user3@example.com'];
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('passwordInput').value; // Fixed: was 'password', now matches the input ID
 
-        // Check if the email exists
-        if (savedEmails.includes(email)) {
-            alert('A reset code has been sent to your email.');
-        } else {
-            alert('Email not found. Please try again.');
-        }
-    }
-});
+            if (username && password) {
+                try {
+                    const response = await fetch('/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password }),
+                    });
 
-</script>
+                    const result = await response.json();
 
-    
+                    if (response.ok) {
+                        localStorage.setItem('username', result.username);
+                         localStorage.setItem('token', result.token);
+                        alert(result.message);
+                        window.location.href = "dashboard.html";
+                    } else {
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again later.');
+                }
+            } else {
+                alert('Please enter both username and password');
+            }
+        });
+
+        document.getElementById('forgot-password').addEventListener('click', () => {
+            const email = prompt('Please enter your email to reset your password:');
+            if (email) {
+                const savedEmails = ['user1@example.com', 'user2@example.com', 'user3@example.com'];
+                if (savedEmails.includes(email)) {
+                    alert('A reset code has been sent to your email.');
+                } else {
+                    alert('Email not found. Please try again.');
+                }
+            }
+        });
+    </script>
 </body>
 </html>
